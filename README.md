@@ -19,6 +19,8 @@ or using a string key:
 python3 xorcrypt.py --input <infile> --output <outfile> --key-str <string> [options]
 ```
 
+---
+
 | Option        | Description           | 
 | --- |---| 
 | --input, -i      | Input file containing shellcode | 
@@ -28,6 +30,7 @@ python3 xorcrypt.py --input <infile> --output <outfile> --key-str <string> [opti
 | --text | Treat input as text (\x90\x90...) |
 | --format, -f | Output format (raw, c-array, python) |
 
+---
 
 ## Example commands
 ### XOR with a hex key and binary input
@@ -44,6 +47,7 @@ python3 xorcrypt.py --input shellcode.txt --text --output encrypted.bin --key-st
 ```bash
 python3 xorcrypt.py --input shellcode.bin --output encrypted.bin --key 0x41 --format c-array
 ```
+---
 
 ## Output format examples
 ### Raw (binary)
@@ -53,7 +57,7 @@ Outputs raw binary data (written directly to a file).
 b'\xb5\x01\xc8\xad\xb9\xb6\xb6'
 ```
 
-### C array
+### C-array
 ```
 unsigned char xored_shellcode[] = {
     0xb5, 0x01, 0xc8, 0xad, 0xb9, 0xb6, 0xb6
