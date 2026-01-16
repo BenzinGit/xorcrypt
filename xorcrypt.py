@@ -280,10 +280,10 @@ def parse_args():
     formatter_class=argparse.RawDescriptionHelpFormatter
     )
     # Input file path (binary by default unless --text is specified)                                 
-    parser.add_argument("-i", "--input", dest="infile", required=True,  metavar="PATH", help="input file path (binary by default). Use --text for text shellcode")
+    parser.add_argument("-i", "--input", dest="infile", required=True, metavar="PATH", help="input file path (binary by default). Use --text for text shellcode")
     
     # Optional output file path; if omitted, output is printed only
-    parser.add_argument("-o", "--output", dest="outfile",  metavar="PATH", help="output file path. If omitted, output is not written to file")
+    parser.add_argument("-o", "--output", dest="outfile", required=True, metavar="PATH", help="output file path. If omitted, output is not written to file")
     
     # Treat input as text shellcode instead of raw binary
     parser.add_argument("--text", action="store_true", help="treat input as text shellcode (supports \\xNN, 0xNN, or plain hex)")
@@ -408,10 +408,9 @@ def main():
          # Apply XOR encryption to the shellcode    
         encrypted_shellcode = xor_encrypt(shellcode, key)
 
-        # Write raw encrypted shellcode to output file if requested
-        if (args.outfile):
-            write_output(args.outfile, encrypted_shellcode)
-            print("[+] Output saved to", args.outfile)
+        # Write raw encrypted shellcode to output file
+        write_output(args.outfile, encrypted_shellcode)
+        print("[+] Output saved to", args.outfile)
 
         # Format and print output if a display format was selected
         if (args.format):
