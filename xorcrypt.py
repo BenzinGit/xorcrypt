@@ -158,7 +158,7 @@ def format_output(data, format):
 
     Args:
         data (bytes): Input binary data.
-        output_format (str): Desired output format.
+        format (str): Desired output format.
 
     Returns:
         bytes | str: Formatted output depending on the selected format.
@@ -178,7 +178,6 @@ def format_output(data, format):
             raise ValueError(f"Unknown output format: {format}") 
 
 
-# FIXIT: better formatting, see C-array
 def format_python(data):
     """
     Format binary data as a Python bytes literal.
@@ -325,12 +324,11 @@ def parse_key(args):
         if args.key == "":
             raise ValueError("XOR key must not be empty")
         
+
         try:
             # Parse hex string into an integer
             key_byte = int(args.key, 16)
-            # Convert single byte integer into bytes object
-            key = bytes([key_byte])
-
+           
         except ValueError:
              # Raised if the hex string cannot be parsed
             raise ValueError(f"Invalid hex key: {args.key}")
@@ -339,6 +337,9 @@ def parse_key(args):
         if not (0 <= key_byte <= 0xFF):
             raise ValueError("Hex key must be a single byte (00–FF)")
       
+       # Convert single byte integer into bytes object
+        key = bytes([key_byte])
+
         # Preserve original key representation for display purposes
         key_display = args.key
         key_type = "hex"
@@ -384,7 +385,7 @@ def main():
     output generation and error handling.
     """
     
-    
+
     try:
         # Parse command-line arguments
         args = parse_args()
