@@ -2,10 +2,9 @@
 
 This tool is a simple Python-based CLI program that XOR-encrypts shellcode.
 It supports reading shellcode both as raw binary files and as text
-(`\x..` format), using single-byte or multi-byte XOR keys, and outputting
-the result in several common formats used in exploit development.
+(`\xNN`, `0xNN`, or raw hex strings), using single-byte or multi-byte XOR keys, and outputting
+the result in several common formats used in exploit development. Supported output formats include raw binary output, Python bytes literals, and C-style byte arrays.
 
----
 
 ## How to run the program
 
@@ -29,6 +28,21 @@ python3 xorcrypt.py --input <infile> --output <outfile> --key-str <string> [opti
 | --key-str | XOR key as a string (multi-byte key) |
 | --text | Treat input as text |
 | --format, -f | Output format (raw, c-array, python) |
+
+---
+
+## Supported text input formats
+When using the `--text` option, the following formats are supported:
+- `\xNN` byte escapes (e.g. `\x90\x90\xcc`)
+- `0xNN` tokens (e.g. `0x90,0x90,0xCC`)
+- Raw hex strings (e.g. `4831c050`)
+
+## Supported output formats
+The following output formats are supported via the `--format` option:
+
+- `raw` – raw binary output
+- `python` – Python bytes literal
+- `c-array` – C-style unsigned char array
 
 ---
 
@@ -68,7 +82,9 @@ unsigned char xored_shellcode[] = {
 ```
 xored_shellcode = b"\xb5\x01\xc8\xad\xb9\xb6\xb6"
 ```
+
 ---
 ## Requirements
 - Python 3.9+
 - No external dependencies
+
