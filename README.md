@@ -63,7 +63,7 @@ unsigned char xored_shellcode[] = {
     0xb5, 0x01, 0xc8, 0xad, 0xb9, 0xb6, 0xb6
 };
 ```
-
+---
 ### Python 
 ```
 xored_shellcode = b"\xb5\x01\xc8\xad\xb9\xb6\xb6"
