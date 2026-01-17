@@ -24,10 +24,10 @@ python3 xorcrypt.py --input <infile> --output <outfile> --key-str <string> [opti
 | Option        | Description           | 
 | --- |---| 
 | --input, -i      | Input file containing shellcode | 
-| --output, -o      | Write output to file as binary      |  
+| --output, -o      | Write output to file (as binary)      |  
 | --key, -k | XOR key as a single hex byte (00–FF) |
 | --key-str | XOR key as a string (multi-byte key) |
-| --text | Treat input as text (\x90\x90...) |
+| --text | Treat input as text |
 | --format, -f | Output format (raw, c-array, python) |
 
 ---
@@ -69,3 +69,6 @@ unsigned char xored_shellcode[] = {
 xored_shellcode = b"\xb5\x01\xc8\xad\xb9\xb6\xb6"
 ```
 
+## Requirements
+- Python 3.9+
+- No external dependencies
