@@ -209,15 +209,24 @@ def format_c(data):
         str: C source code defining an unsigned char array.
     """
 
+    # Bytes per row
     row_length = 16
 
+    # Convert each byte to a C-style hex literal (e.g. 0x90)
     hex_bytes = [f"0x{b:02x}" for b in data]
+
+
     lines = []
+    
+    # Process the hex bytes in chunks of row_length
     for i in range(0, len(hex_bytes), row_length):
         chunk = ", ".join(hex_bytes[i:i + row_length])
         lines.append("    " + chunk + ",")
 
+    # Remove last ","
     lines[-1] = lines[-1].rstrip(",")
+    
+    # Build the complete string
     output = (
         "unsigned char xored_shellcode[] = {\n"
         + "\n".join(lines)
@@ -385,7 +394,6 @@ def main():
     output generation and error handling.
     """
     
-
     try:
         # Parse command-line arguments
         args = parse_args()
