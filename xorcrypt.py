@@ -131,7 +131,7 @@ def parse_text_shellcode(content):
         # Convert extracted hex pairs to raw bytes
         return bytes(int(p, 16) for p in pairs)
 
-    # 3) Raw hex tring
+    # 3) Raw hex string
     # Must contain only hex characters and have an even length
     if re.fullmatch(r"[0-9a-fA-F]+", compact) and len(compact) % 2 == 0:
         print("[+] Text shellcode: raw hex (or unknown) detected")
