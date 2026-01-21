@@ -15,7 +15,6 @@ def read_shellcode(path, text_mode):
     Returns:
         bytes: Parsed shellcode.
                 
-        
     Raises:
         ValueError: If the resulting shellcode is empty.    
     """
@@ -106,23 +105,38 @@ def parse_text_shellcode(content):
 
     # 1) \xNN-format
     if "\\x" in compact:
+        
+        # Extract all hex byte pairs following \x
         pairs = re.findall(r"\\x([0-9a-fA-F]{2})", compact)
+        
+        # If \x exists but no valid hex pairs were found, the format is invalid
         if not pairs:
             raise ValueError("Invalid \\xNN shellcode format")
         print("[+] Text shellcode: \\xNN format detected")        
+        
+        # Convert each hex pair to an integer (base 16) and build a bytes object
         return bytes(int(p, 16) for p in pairs)
 
     # 2) 0xNN-format
     if "0x" in compact.lower():
+        
+        # Extract all hex byte values following 0x / 0X
         pairs = re.findall(r"0x([0-9a-fA-F]{2})", compact, flags=re.IGNORECASE)
+        
+        # If 0x exists but no valid hex pairs were found, the format is invalid
         if not pairs:
             raise ValueError("Invalid 0xNN shellcode format")
         print("[+] Text shellcode: 0xNN format detected")     
+        
+        # Convert extracted hex pairs to raw bytes
         return bytes(int(p, 16) for p in pairs)
 
     # 3) Raw hex tring
+    # Must contain only hex characters and have an even length
     if re.fullmatch(r"[0-9a-fA-F]+", compact) and len(compact) % 2 == 0:
         print("[+] Text shellcode: raw hex (or unknown) detected")
+        
+        # Convert raw hex string directly into bytes
         return bytes.fromhex(compact)
 
     # No matches
@@ -142,8 +156,14 @@ def xor_encrypt(data, key):
     """
 
     result = []
+    
+    # Iterate over each byte
     for i, byte in enumerate(data):
+        
+        # XOR the current data byte with a key byte
         result.append(byte ^ key[i % len(key)])
+    
+    # Convert the list into a bytes object 
     return bytes(result)
 
 
@@ -189,12 +209,19 @@ def format_python(data):
         str: Python-formatted bytes literal.
     """
     
+
+    # Start building a Python bytes literal
     hex_bytes = 'xored_shellcode = b"'
 
-    for b in data:
-        hex_bytes += f"\\x{b:02x}"
+    # Iterate over each byte in the input data
+    for byte in data:
+        # Append the byte in \xNN hex escape format
+        # 02x ensures two hex digits with leading zero if needed
+        hex_bytes += f"\\x{byte:02x}"
 
+    # Close the bytes literal and add a newline
     hex_bytes += '"\n'
+    
     return hex_bytes
 
 
@@ -213,20 +240,21 @@ def format_c(data):
     row_length = 16
 
     # Convert each byte to a C-style hex literal (e.g. 0x90)
-    hex_bytes = [f"0x{b:02x}" for b in data]
-
+    hex_bytes = [f"0x{byte:02x}" for byte in data]
 
     lines = []
     
     # Process the hex bytes in chunks of row_length
     for i in range(0, len(hex_bytes), row_length):
+        # Join up to row_length bytes with commas
         chunk = ", ".join(hex_bytes[i:i + row_length])
+        # Add indentation and a comma
         lines.append("    " + chunk + ",")
 
-    # Remove last ","
+    # Remove comma from the last line
     lines[-1] = lines[-1].rstrip(",")
     
-    # Build the complete string
+    # Build the final C array definition
     output = (
         "unsigned char xored_shellcode[] = {\n"
         + "\n".join(lines)
@@ -275,41 +303,6 @@ def print_summary(file_in, file_out, key, output_format):
     print("[+] Format   : ", output_format)
 
 
-def parse_args():
-    """
-    Parse and return command-line arguments for the XOR shellcode tool.
-    """
-    
-    parser = argparse.ArgumentParser(description="XOR-encrypt shellcode from a binary file or text representation",
-                                     epilog="""Examples:
-  xorcrypt.py -i shellcode.bin -o out.bin -k 0x41 -f c-array
-  xorcrypt.py -i shellcode.bin -o out.bin -k 4f
-  xorcrypt.py -i shellcode.txt --text --key-str secret -f python
-""",
-    formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    # Input file path (binary by default unless --text is specified)                                 
-    parser.add_argument("-i", "--input", dest="infile", required=True, metavar="PATH", help="input file path (binary by default). Use --text for text shellcode")
-    
-    # Optional output file path; if omitted, output is printed only
-    parser.add_argument("-o", "--output", dest="outfile", required=True, metavar="PATH", help="output file path. If omitted, output is not written to file")
-    
-    # Treat input as text shellcode instead of raw binary
-    parser.add_argument("--text", action="store_true", help="treat input as text shellcode (supports \\xNN, 0xNN, or plain hex)")
-    
-    # XOR key must be provided either as hex or as a string (mutually exclusive)
-    key_group = parser.add_mutually_exclusive_group(required=True)
-    key_group.add_argument("-k", "--key",  metavar="HEX", help="XOR key as a single hex byte (00–FF or 0x00–0xFF). Example: -k 4f or -k 0x4f")
-    key_group.add_argument("--key-str", metavar="STRING", help="XOR key as a string (UTF-8). Example: --key-str secret")
-    
-    # Select output format for the processed shellcode
-    parser.add_argument("-f", "--format", metavar="FORMAT", choices=["raw", "python", "c-array"], help="output format: raw, python or c-array")
-    
-    # Display tool version and exit
-    parser.add_argument("--version", action="version", version="xorcrypt 1.0") 
-    return parser.parse_args()
-
-
 def parse_key(args):    
     """
     Parse and normalize the XOR key from command-line arguments.
@@ -333,7 +326,6 @@ def parse_key(args):
         if args.key == "":
             raise ValueError("XOR key must not be empty")
         
-
         try:
             # Parse hex string into an integer
             key_byte = int(args.key, 16)
@@ -386,6 +378,39 @@ def print_output(output, format):
     print("---- END OUTPUT ----")
 
 
+def parse_args():
+    """
+    Parse and return command-line arguments for the XOR shellcode tool.
+    """
+    
+    parser = argparse.ArgumentParser(description="XOR-encrypt shellcode from a binary file or text representation",
+                                     epilog="""Examples:
+  xorcrypt.py -i shellcode.bin -o out.bin -k 0x41 -f c-array
+  xorcrypt.py -i shellcode.bin -o out.bin -k 0x41
+  xorcrypt.py -i shellcode.txt -o out.bin --text --key-str secret -f python
+""",
+    formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    # Input file path (binary by default unless --text is specified)                                 
+    parser.add_argument("-i", "--input", dest="infile", required=True, metavar="PATH", help="input file path (binary by default). Use --text for text shellcode")
+    
+    # Optional output file path; if omitted, output is printed only
+    parser.add_argument("-o", "--output", dest="outfile", required=True, metavar="PATH", help="output file path.")
+    
+    # Treat input as text shellcode instead of raw binary
+    parser.add_argument("--text", action="store_true", help="treat input as text shellcode (supports \\xNN, 0xNN, or plain hex)")
+    
+    # XOR key must be provided either as hex or as a string (mutually exclusive)
+    key_group = parser.add_mutually_exclusive_group(required=True)
+    key_group.add_argument("-k", "--key",  metavar="HEX", help="XOR key as a single hex byte (00–FF or 0x00–0xFF). Example: -k 4f or -k 0x4f")
+    key_group.add_argument("--key-str", metavar="STRING", help="XOR key as a string (UTF-8). Example: --key-str secret")
+    
+    # Select output format for the processed shellcode
+    parser.add_argument("-f", "--format", metavar="FORMAT", choices=["raw", "python", "c-array"], help="output format: raw, python or c-array")
+    
+    # Display tool version and exit
+    parser.add_argument("--version", action="version", version="xorcrypt 1.0") 
+    return parser.parse_args()
 
 def main():
     """
