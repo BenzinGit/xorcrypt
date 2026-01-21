@@ -1,10 +1,7 @@
 # xorcrypt
 
 This tool is a simple Python-based CLI program that XOR-encrypts shellcode.
-It supports reading shellcode both as raw binary files and as text
-(`\xNN`, `0xNN`, or raw hex strings), using single-byte or multi-byte XOR keys, and outputting
-the result in several common formats used in exploit development. Supported output formats include raw binary output, Python bytes literals, and C-style byte arrays.
-
+It supports reading shellcode both as raw binary files and as text (`\xNN`, `0xNN`, or raw hex strings), using single-byte or multi-byte XOR keys. The encrypted shellcode is written as raw bytes to a binary output file, and can optionally be displayed in several common formats in the terminal, including raw output, Python bytes literals, and C-style byte arrays.
 
 ## How to run the program
 
@@ -22,12 +19,12 @@ python3 xorcrypt.py --input <infile> --output <outfile> --key-str <string> [opti
 
 | Option        | Description           | 
 | --- |---| 
-| --input, -i      | Input file containing shellcode | 
-| --output, -o      | Write output to file (as binary)      |  
-| --key, -k | XOR key as a single hex byte (00–FF) |
+| --input, -i      | Path to input shellcode file (binary by default, use additional --text for text input) | 
+| --output, -o      | Path to output file for the XOR-encrypted shellcode (raw bytes) |  
+| --key, -k | XOR key as a single hex byte (00–FF or 0x00–0xFF) |
 | --key-str | XOR key as a string (multi-byte key) |
-| --text | Treat input as text |
-| --format, -f | Output format (raw, c-array, python) |
+| --text | Treat input file as text shellcode (\xNN, 0xNN, or raw hex)|
+| --format, -f | Display output format for terminal: raw, python, or c-array                                |
 
 ---
 
@@ -43,6 +40,9 @@ The following output formats are supported via the `--format` option:
 - `raw` – raw binary output
 - `python` – Python bytes literal
 - `c-array` – C-style unsigned char array
+
+Note: The `--format` option only affects how the encrypted shellcode is displayed in the terminal.
+The output file always contains raw XOR-encrypted bytes
 
 ---
 
@@ -65,11 +65,12 @@ python3 xorcrypt.py --input shellcode.bin --output encrypted.bin --key 0x41 --fo
 
 ## Output format examples
 ### Raw (binary)
-Outputs raw binary data (written directly to a file).
+Outputs raw binary data.
 
 ```
 b'\xb5\x01\xc8\xad\xb9\xb6\xb6'
 ```
+Note: This output shows the raw XOR-encrypted bytes using Python’s default bytes representation.
 
 ### C-array
 ```
